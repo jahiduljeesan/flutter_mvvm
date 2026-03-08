@@ -1,7 +1,6 @@
 import 'package:flutter_mvvm/models/post_model.dart';
 import 'package:flutter_mvvm/services/api_service.dart';
 import 'package:flutter_mvvm/utils/hive_boxes.dart';
-import 'package:hive/hive.dart';
 
 class PostRepository {
   final ApiService _apiService = ApiService();
@@ -26,7 +25,14 @@ class PostRepository {
       return posts;
     } catch (e) {
       // returning catch data
-      return null;
+      final box = HiveBoxes.getPostBox();
+      List? cachedData = box.get("posts");
+
+      if (cachedData != null) {
+        return cachedData
+            .map((e) => PostModel.fromJson(Map<String,dynamic>.from(e))).toList();
+      }
+      rethrow;
     }
   }
 }
